@@ -1,0 +1,75 @@
+# yamllint disable rule:document-start
+# yamllint disable rule:truthy
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  # Container-based format checking (goneat-tools-runner)
+  # Checks YAML, shell, and config formatting via goneat assess
+  format-check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/fulmenhq/goneat-tools-runner:v0.2.1
+      options: --user 1001
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify foundation tools
+        run: |
+          set -euo pipefail
+          yamlfmt --version
+          goneat --version
+      - name: Check formatting (goneat assess)
+        run: |
+          set -euo pipefail
+          goneat assess --categories format,lint --check
+  # Node.js build, lint, typecheck, test
+  check:
+    needs: [format-check]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm run check-types
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+  package-audit:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Package size audit
+        run: npm pack --dry-run 2>&1 | tail -20
+  web-build:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:web

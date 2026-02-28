@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MDMeld — Pack directory trees into markdown</title>
+	<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+	<div class="app">
+		<header class="header">
+			<h1>mdmeld<span class="version">v1.0</span></h1>
+			<p>Pack a directory tree into a single markdown file for sharing with AI assistants.</p>
+		</header>
+
+		<div class="drop-zone">
+			<div class="drop-prompt">
+				<div class="drop-icon">&#x1F4C2;</div>
+				<div class="drop-text">Drop a folder here</div>
+				<button class="browse-btn">Browse</button>
+			</div>
+			<div class="files-header">
+				<span class="file-count"></span>
+				<button class="browse-btn">Change</button>
+			</div>
+			<div class="file-list"></div>
+		</div>
+
+		<button class="pack-btn" disabled>Pack</button>
+
+		<section class="output-section">
+			<div class="output-toolbar">
+				<button class="copy-btn">Copy</button>
+				<button class="download-btn">Download .mdmeld</button>
+			</div>
+			<textarea class="output-area" readonly spellcheck="false"></textarea>
+		</section>
+	</div>
+
+	<div class="status-bar">Ready</div>
+
+	<script type="module" src="./app.ts"></script>
+</body>
+</html>

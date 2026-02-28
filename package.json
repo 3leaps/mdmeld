@@ -1,0 +1,65 @@
+{
+  "name": "mdmeld",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Pack directory trees into a single markdown file for sharing with AI assistants",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/3leaps/mdmeld.git"
+  },
+  "keywords": [
+    "mdmeld",
+    "markdown",
+    "archive",
+    "pack",
+    "ai",
+    "collaboration"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "mdmeld": "./dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "require": "./dist/core/index.cjs"
+    }
+  },
+  "main": "./dist/core/index.cjs",
+  "module": "./dist/core/index.js",
+  "types": "./dist/core/index.d.ts",
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "vite web",
+    "build:web": "vite build web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check src/ test/",
+    "lint:fix": "biome check --write src/ test/",
+    "check-types": "tsc --noEmit",
+    "check-all": "npm run check-types && npm run lint && npm run test"
+  },
+  "dependencies": {
+    "ignore": "^7.0.4",
+    "js-yaml": "^4.1.0",
+    "xxhash-wasm": "^1.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.5",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0",
+    "vitest": "^4.0.18"
+  }
+}

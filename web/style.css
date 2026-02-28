@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+	--bg: #0c0c0e;
+	--bg-raised: #141418;
+	--bg-surface: #1a1a20;
+	--border: #2a2a32;
+	--border-active: #3d3d4a;
+	--text: #c8c8d0;
+	--text-dim: #6e6e7a;
+	--text-bright: #e8e8ee;
+	--accent: #e0c878;
+	--accent-dim: #b8a45c;
+	--green: #7ec87e;
+	--red: #d87070;
+	--mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+	--sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html, body {
+	height: 100%;
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--mono);
+	font-size: 13px;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+.app {
+	max-width: 780px;
+	margin: 0 auto;
+	padding: 48px 24px 80px;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+/* ── Header ────────────────────── */
+
+.header {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.header h1 {
+	font-family: var(--mono);
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--text-bright);
+	letter-spacing: -0.02em;
+}
+
+.header h1 .version {
+	font-weight: 400;
+	color: var(--text-dim);
+	font-size: 13px;
+	margin-left: 6px;
+}
+
+.header p {
+	font-family: var(--sans);
+	color: var(--text-dim);
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+/* ── Drop Zone ─────────────────── */
+
+.drop-zone {
+	border: 1px dashed var(--border);
+	border-radius: 4px;
+	padding: 40px 24px;
+	text-align: center;
+	cursor: pointer;
+	transition: border-color 0.15s, background 0.15s;
+	position: relative;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+	border-color: var(--accent);
+	background: rgba(224, 200, 120, 0.03);
+}
+
+.drop-zone.has-files {
+	border-style: solid;
+	border-color: var(--border-active);
+	padding: 20px 24px;
+	text-align: left;
+}
+
+.drop-prompt {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+}
+
+.drop-icon {
+	font-size: 28px;
+	opacity: 0.25;
+	user-select: none;
+}
+
+.drop-text {
+	color: var(--text-dim);
+	font-size: 13px;
+}
+
+.drop-text kbd {
+	display: inline-block;
+	padding: 1px 6px;
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--text);
+}
+
+.has-files .drop-prompt {
+	display: none;
+}
+
+.browse-btn {
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	color: var(--text);
+	font-family: var(--mono);
+	font-size: 12px;
+	padding: 6px 16px;
+	border-radius: 3px;
+	cursor: pointer;
+	transition: border-color 0.15s, color 0.15s;
+}
+
+.browse-btn:hover {
+	border-color: var(--accent-dim);
+	color: var(--text-bright);
+}
+
+/* ── File List ─────────────────── */
+
+.files-header {
+	display: none;
+}
+
+.has-files .files-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.file-count {
+	font-size: 12px;
+	color: var(--accent);
+	font-weight: 500;
+}
+
+.file-list {
+	display: none;
+	max-height: 240px;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: var(--border) transparent;
+}
+
+.has-files .file-list {
+	display: block;
+}
+
+.file-entry {
+	padding: 3px 0;
+	font-size: 12px;
+	color: var(--text-dim);
+	border-bottom: 1px solid rgba(255,255,255,0.03);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.file-entry:last-child {
+	border-bottom: none;
+}
+
+/* ── Pack Button ───────────────── */
+
+.pack-btn {
+	width: 100%;
+	padding: 10px;
+	background: var(--accent);
+	border: none;
+	color: var(--bg);
+	font-family: var(--mono);
+	font-size: 13px;
+	font-weight: 600;
+	border-radius: 3px;
+	cursor: pointer;
+	letter-spacing: 0.04em;
+	transition: opacity 0.15s;
+}
+
+.pack-btn:hover:not(:disabled) {
+	opacity: 0.9;
+}
+
+.pack-btn:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+/* ── Output ────────────────────── */
+
+.output-section {
+	display: none;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.output-section.visible {
+	display: flex;
+}
+
+.output-toolbar {
+	display: flex;
+	gap: 8px;
+}
+
+.copy-btn,
+.download-btn {
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	color: var(--text);
+	font-family: var(--mono);
+	font-size: 12px;
+	padding: 6px 14px;
+	border-radius: 3px;
+	cursor: pointer;
+	transition: border-color 0.15s, color 0.15s;
+}
+
+.copy-btn:hover,
+.download-btn:hover {
+	border-color: var(--accent-dim);
+	color: var(--text-bright);
+}
+
+.output-area {
+	width: 100%;
+	height: 400px;
+	background: var(--bg-raised);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	color: var(--text);
+	font-family: var(--mono);
+	font-size: 12px;
+	line-height: 1.5;
+	padding: 16px;
+	resize: vertical;
+	outline: none;
+	tab-size: 2;
+	scrollbar-width: thin;
+	scrollbar-color: var(--border) transparent;
+}
+
+.output-area:focus {
+	border-color: var(--border-active);
+}
+
+/* ── Status Bar ────────────────── */
+
+.status-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 6px 24px;
+	background: var(--bg-raised);
+	border-top: 1px solid var(--border);
+	font-size: 11px;
+	color: var(--text-dim);
+	font-family: var(--mono);
+	z-index: 100;
+}

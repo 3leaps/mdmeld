@@ -1,0 +1,73 @@
+# goneat Tools Configuration (v1.0.0)
+# Repository: mdmeld
+#
+# This file is the SINGLE SOURCE OF TRUTH for tools configuration.
+# There are NO hidden defaults or runtime merging.
+#
+# Validate changes with: goneat doctor tools validate
+scopes:
+  foundation:
+    description: Core tools for mdmeld development
+    tools:
+      - ripgrep
+      - jq
+      - yamlfmt
+tools:
+  ripgrep:
+    name: ripgrep
+    description: Fast text search - used by goneat for license auditing
+    kind: system
+    detect_command: rg --version
+    platforms:
+      - darwin
+      - linux
+      - windows
+    installer_priority:
+      darwin:
+        - brew
+        - mise
+      linux:
+        - brew
+        - mise
+      windows:
+        - scoop
+        - winget
+  jq:
+    name: jq
+    description: JSON processor - used in CI/CD scripts
+    kind: system
+    detect_command: jq --version
+    platforms:
+      - darwin
+      - linux
+      - windows
+    installer_priority:
+      darwin:
+        - brew
+        - mise
+      linux:
+        - brew
+        - mise
+      windows:
+        - scoop
+        - winget
+  yamlfmt:
+    name: yamlfmt
+    description: YAML formatter and linter - required by goneat format
+    kind: system
+    detect_command: yamlfmt --version
+    platforms:
+      - darwin
+      - linux
+      - windows
+    version_args:
+      - --version
+    check_args:
+      - --help
+    installer_priority:
+      darwin:
+        - brew
+      linux:
+        - brew
+      windows:
+        - scoop

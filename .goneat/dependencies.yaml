@@ -1,0 +1,69 @@
+# ============================================================================
+# mdmeld Dependency Protection Configuration
+# ============================================================================
+# License compliance and supply chain security.
+#
+# Commands:
+#   goneat dependencies --licenses          # Check license compliance
+#   goneat dependencies --cooling           # Check package age/downloads
+#   goneat assess --categories dependencies # Full dependency assessment
+#
+# ============================================================================
+version: v1
+# ============================================================================
+# LICENSE COMPLIANCE POLICY
+# ============================================================================
+# mdmeld is MIT licensed - all dependencies must be MIT-compatible.
+#
+licenses:
+  # Forbidden licenses (build fails if detected)
+  forbidden:
+    - GPL-2.0
+    - GPL-3.0
+    - LGPL-2.0
+    - LGPL-2.1
+    - LGPL-3.0
+    - AGPL-3.0
+    - MPL-2.0
+    - CDDL-1.0
+  # Explicitly allowed licenses (MIT-compatible permissive licenses)
+  allowed:
+    - MIT
+    - Apache-2.0
+    - BSD-3-Clause
+    - BSD-2-Clause
+    - ISC
+    - 0BSD
+    - Unlicense
+    - CC0-1.0
+    - BlueOak-1.0.0
+# ============================================================================
+# PACKAGE COOLING POLICY (Supply Chain Security)
+# ============================================================================
+# Enforces waiting period before adopting newly published packages.
+#
+cooling:
+  enabled: true
+  min_age_days: 7
+  min_downloads: 100
+  min_downloads_recent: 10
+  alert_only: false
+  grace_period_days: 3
+  exceptions:
+    # 3 Leaps organization packages
+    - pattern: "@3leaps/*"
+      reason: "3 Leaps organization packages"
+      approved_by: "@3leapsdave"
+      approved_date: "2026-02-28"
+# ============================================================================
+# NODE-SPECIFIC SETTINGS
+# ============================================================================
+node:
+  tool: license-checker
+  manifest: package.json
+  lockfile: package-lock.json
+# ============================================================================
+# POLICY ENGINE
+# ============================================================================
+policy_engine:
+  type: embedded
