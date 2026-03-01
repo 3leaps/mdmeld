@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 MDMeld Contributors
+Copyright (c) 2026 3 Leaps, LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,54 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Subject to 3 Leaps OSS policies: https://github.com/3leaps/oss-policies
+
+---
+
+## Project Name Notice
+
+"mdmeld" is a project name of 3 Leaps, LLC, used to identify this software.
+"3 Leaps" is a registered trademark of 3 Leaps, LLC, a Florida LLC with
+offices in South Carolina.
+
+While code and documentation are open under the MIT License, usage of the
+"mdmeld" project name is reserved for official implementations to prevent
+confusion and benefit the ecosystem. Use of this name in derivative works
+does not imply endorsement by 3 Leaps, LLC.
+
+For the benefit of the community, please rename your project folder and
+configurations to avoid using "3leaps" or "mdmeld" in derivative works that
+are not official 3 Leaps projects.
+
+For questions regarding project name usage, contact hello@3leaps.net.
+
+---
+
+## Acceptable Use of "mdmeld"
+
+We built mdmeld for the community and encourage its use. You may freely:
+
+- Use "mdmeld" descriptively to identify this software (e.g., "packed with
+  mdmeld", "verified by mdmeld", "compatible with mdmeld")
+- Display mdmeld output, archive metadata, or integrity hashes in your
+  projects and CI pipelines
+- Fork this repository, contribute improvements, and build integrations
+- Reference mdmeld in documentation, articles, and educational materials
+- Use mdmeld in your toolchains and recommend it to others
+
+These uses do not require permission and do not imply endorsement by 3 Leaps, LLC.
+
+What we ask you not to do:
+
+- Create a separate product, service, or distribution called "mdmeld" or using
+  "mdmeld" as a prominent name element (e.g., "mdmeld-pro", "YourCo mdmeld",
+  "mdmeld-enterprise")
+- Use "mdmeld" in a way that suggests official affiliation with or endorsement
+  by 3 Leaps, LLC
+
+If you fork this project for internal use or as a base for a different tool,
+please choose a new name. The code is yours under MIT; the name is how we
+maintain a coherent identity for the community.
+
+For questions regarding project name usage, contact hello@3leaps.net.
