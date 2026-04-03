@@ -1,0 +1,4 @@
+self-hosted-runner:
+  labels:
+    - macos-13
+    - windows-latest-arm64-s
