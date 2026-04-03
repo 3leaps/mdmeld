@@ -8,7 +8,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Latest 10 entries, reve
 
 ### Added
 
-- Standalone binary builds via `bun build --compile` for 6 platforms
+- Standalone binary builds via `bun build --compile` for 5 platforms
 - Makefile targets: `build-binary`, `build-all`, `release-build`, `install`
 - `scripts/build-binary.sh` — cross-compile wrapper with homebrew/scoop-friendly naming
 - Release workflow builds platform binaries and attaches to draft GitHub release
@@ -19,7 +19,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Latest 10 entries, reve
 
 ### Changed
 
-- `release.yml` reworked: matrix build for 5 platform binaries + npm tarball + checksums
+- `release.yml` reworked: matrix build for 4 platform binaries + npm tarball + checksums
 - `RELEASE_CHECKLIST.md` updated with binary, homebrew, and scoop sections
 
 ## [0.1.0] - 2026-02-28

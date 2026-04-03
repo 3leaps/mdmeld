@@ -183,7 +183,6 @@ build-binary: ## Build standalone binary for current platform (requires bun)
 build-all: ## Cross-compile binaries for all platforms → dist/bin/ (requires bun)
 	@./scripts/build-binary.sh --target bun-linux-x64
 	@./scripts/build-binary.sh --target bun-linux-arm64
-	@./scripts/build-binary.sh --target bun-darwin-x64
 	@./scripts/build-binary.sh --target bun-darwin-arm64
 	@./scripts/build-binary.sh --target bun-windows-x64
 	@echo "All platform binaries built in dist/bin/"
@@ -192,7 +191,6 @@ release-build: ## Build release binaries → dist/release/ (requires bun)
 	@mkdir -p $(RELEASE_DIR)
 	@./scripts/build-binary.sh --target bun-linux-x64 --outdir $(RELEASE_DIR)
 	@./scripts/build-binary.sh --target bun-linux-arm64 --outdir $(RELEASE_DIR)
-	@./scripts/build-binary.sh --target bun-darwin-x64 --outdir $(RELEASE_DIR)
 	@./scripts/build-binary.sh --target bun-darwin-arm64 --outdir $(RELEASE_DIR)
 	@./scripts/build-binary.sh --target bun-windows-x64 --outdir $(RELEASE_DIR)
 	@echo "Release binaries built in $(RELEASE_DIR)/"

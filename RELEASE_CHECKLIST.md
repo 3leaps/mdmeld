@@ -58,7 +58,8 @@ This checklist covers the full release process for mdmeld, from preparation thro
   > **Note:** Bun cannot cross-compile to windows-arm64. This runs natively on
   > a Windows ARM64 runner and uploads `mdmeld-windows-arm64.exe` to the draft
   > release. Must complete before `make release-download` so checksums cover
-  > all binaries.
+  > all binaries. Once validated, this can be triggered concurrently with the
+  > tag push since it is independent of `release.yml`.
 
 ## 3. Sign Release (Local Machine)
 
