@@ -14,7 +14,7 @@ GONEAT_VERSION ?= v0.5.3
 SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/install-sfetch.sh
 
 .PHONY: all help bootstrap bootstrap-force tools
-.PHONY: dev build build-web clean
+.PHONY: dev build build-web build-binary build-all release-build install clean
 .PHONY: fmt lint typecheck test test-watch check-all quality precommit prepush
 .PHONY: license-check vuln-scan sbom public-readiness
 .PHONY: version version-set version-sync version-check
@@ -68,6 +68,12 @@ help: ## Show this help message
 	@echo "  make release-upload            - Upload provenance (sigs, keys, notes)"
 	@echo "  make release-upload-all        - Upload ALL assets (manual rebuild only)"
 	@echo "  make release-undraft           - Mark release as published"
+	@echo ""
+	@echo "Binary:"
+	@echo "  make build-binary   - Build standalone binary for current platform (bun)"
+	@echo "  make build-all      - Cross-compile all platforms → dist/bin/ (bun)"
+	@echo "  make release-build  - Cross-compile all platforms → dist/release/ (bun)"
+	@echo "  make install        - Build and install to BINDIR (default: ~/.local/bin)"
 	@echo ""
 	@echo "Other:"
 	@echo "  make tools          - Verify external tools are available"
@@ -170,6 +176,32 @@ build: ## Build library and CLI
 
 build-web: ## Build web tool
 	@npm run build:web
+
+build-binary: ## Build standalone binary for current platform (requires bun)
+	@./scripts/build-binary.sh
+
+build-all: ## Cross-compile binaries for all platforms → dist/bin/ (requires bun)
+	@./scripts/build-binary.sh --target bun-linux-x64
+	@./scripts/build-binary.sh --target bun-linux-arm64
+	@./scripts/build-binary.sh --target bun-darwin-x64
+	@./scripts/build-binary.sh --target bun-darwin-arm64
+	@./scripts/build-binary.sh --target bun-windows-x64
+	@echo "All platform binaries built in dist/bin/"
+
+release-build: ## Build release binaries → dist/release/ (requires bun)
+	@mkdir -p $(RELEASE_DIR)
+	@./scripts/build-binary.sh --target bun-linux-x64 --outdir $(RELEASE_DIR)
+	@./scripts/build-binary.sh --target bun-linux-arm64 --outdir $(RELEASE_DIR)
+	@./scripts/build-binary.sh --target bun-darwin-x64 --outdir $(RELEASE_DIR)
+	@./scripts/build-binary.sh --target bun-darwin-arm64 --outdir $(RELEASE_DIR)
+	@./scripts/build-binary.sh --target bun-windows-x64 --outdir $(RELEASE_DIR)
+	@echo "Release binaries built in $(RELEASE_DIR)/"
+
+install: build-binary ## Install mdmeld binary to BINDIR (default: ~/.local/bin)
+	@mkdir -p "$(BINDIR)"
+	@cp dist/bin/mdmeld "$(BINDIR)/mdmeld"
+	@chmod +x "$(BINDIR)/mdmeld"
+	@echo "Installed mdmeld to $(BINDIR)/mdmeld"
 
 clean: ## Remove build artifacts
 	@rm -rf dist/ web/dist/ coverage/ sbom/

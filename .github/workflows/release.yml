@@ -8,21 +8,19 @@ on:
 permissions:
   contents: write
 jobs:
-  release:
+  validate-version:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
       - name: Validate VERSION matches tag
+        id: check
         shell: bash
         run: |
           set -euo pipefail
@@ -35,22 +33,116 @@ jobs:
             echo "::error::$MSG"
             exit 1
           fi
+          echo "version=$FILE_VERSION" >> "$GITHUB_OUTPUT"
+  quality:
+    needs: validate-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check-types
+      - run: npm test
+  build-binaries:
+    name: Build (${{ matrix.asset_name }})
+    needs: [validate-version, quality]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: bun-linux-x64
+            asset_name: mdmeld-linux-amd64
+          - os: ubuntu-latest
+            target: bun-linux-arm64
+            asset_name: mdmeld-linux-arm64
+          - os: macos-14
+            target: bun-darwin-arm64
+            asset_name: mdmeld-darwin-arm64
+          - os: macos-13
+            target: bun-darwin-x64
+            asset_name: mdmeld-darwin-amd64
+          - os: windows-latest
+            target: bun-windows-x64
+            asset_name: mdmeld-windows-amd64.exe
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install dependencies
-        run: npm ci
-      - name: Lint
-        run: npm run lint
-      - name: Typecheck
-        run: npm run check-types
-      - name: Test
-        run: npm test
-      - name: Build
-        run: npm run build
-      - name: Package tarball
-        run: npm pack
-      - name: Move tarball to release directory
+        run: bun install --frozen-lockfile
+      - name: Build binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/release
+          bun build src/cli/index.ts --compile \
+            --target "${{ matrix.target }}" \
+            --outfile "dist/release/${{ matrix.asset_name }}"
+      - name: Smoke test
+        if: "!contains(matrix.target, 'arm64') || contains(matrix.os, 'macos-14')"
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x "dist/release/${{ matrix.asset_name }}" 2>/dev/null || true
+          "./dist/release/${{ matrix.asset_name }}" --help
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.asset_name }}
+          path: dist/release/${{ matrix.asset_name }}
+  build-npm-tarball:
+    needs: [validate-version, quality]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm pack
+      - name: Stage tarball
         run: |
           mkdir -p dist/release
           mv mdmeld-*.tgz dist/release/
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-tarball
+          path: dist/release/mdmeld-*.tgz
+  publish-draft:
+    name: Publish Draft Release
+    needs: [validate-version, build-binaries, build-npm-tarball]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/release
+          merge-multiple: true
+      - name: List release assets
+        run: ls -lh dist/release/
+      - name: Generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist/release
+          shasum -a 256 mdmeld-* > SHA256SUMS
+          shasum -a 512 mdmeld-* > SHA512SUMS
+          echo "=== SHA256SUMS ==="
+          cat SHA256SUMS
       - name: Publish draft GitHub Release
         uses: softprops/action-gh-release@v2
         with:

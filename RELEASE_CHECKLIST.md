@@ -9,6 +9,8 @@ This checklist covers the full release process for mdmeld, from preparation thro
 - [ ] Signing keys configured (see 3leaps-mdmeld-cicd.sh)
 - [ ] `gh` CLI authenticated with appropriate permissions
 - [ ] npm OIDC trusted publishing configured (one-time setup)
+- [ ] `../homebrew-tap` sibling repo cloned (`git clone https://github.com/3leaps/homebrew-tap.git`)
+- [ ] `../scoop-bucket` sibling repo cloned (`git clone https://github.com/3leaps/scoop-bucket.git`)
 
 ## 1. Prepare Release
 
@@ -47,7 +49,16 @@ This checklist covers the full release process for mdmeld, from preparation thro
   git push origin v<version>
   ```
 - [ ] Wait for `release.yml` workflow to complete
-- [ ] Verify draft release created on GitHub with tarball attached
+- [ ] Verify draft release created on GitHub with binaries + tarball attached
+- [ ] Trigger Windows ARM64 build (manual workflow):
+  ```bash
+  gh workflow run release-windows-arm64.yml -f tag=v<version>
+  gh run watch    # wait for completion
+  ```
+  > **Note:** Bun cannot cross-compile to windows-arm64. This runs natively on
+  > a Windows ARM64 runner and uploads `mdmeld-windows-arm64.exe` to the draft
+  > release. Must complete before `make release-download` so checksums cover
+  > all binaries.
 
 ## 3. Sign Release (Local Machine)
 
@@ -130,7 +141,7 @@ make release-all
     make release-upload
     ```
 
-    > **Note:** CI uploads tarballs. This only uploads signing provenance.
+    > **Note:** CI uploads binaries + tarballs. This only uploads signing provenance.
     > For manual rebuilds where you need to replace everything: `make release-upload-all`
 
 11. **Mark release as published**
@@ -153,9 +164,15 @@ make release-all
   ```bash
   npm view mdmeld
   ```
-- [ ] Test installation:
+- [ ] Test npm installation:
   ```bash
   npx mdmeld pack ./some-dir
+  ```
+- [ ] Test binary (download from release):
+  ```bash
+  gh release download v<version> -p "mdmeld-darwin-arm64" -D /tmp
+  chmod +x /tmp/mdmeld-darwin-arm64
+  /tmp/mdmeld-darwin-arm64 --help
   ```
 - [ ] Verify checksum (optional):
   ```bash
@@ -163,7 +180,52 @@ make release-all
   shasum -a 256 mdmeld-<version>.tgz
   ```
 
-## 6. Announce
+## 6. Update Homebrew Tap
+
+- [ ] Update, audit, and test the formula in one step:
+  ```bash
+  cd ../homebrew-tap
+  make release APP=mdmeld
+  ```
+  > Runs `update → style → audit → test` against the published GitHub release.
+  > The update script fetches binaries from the release, computes SHA256 checksums,
+  > and rewrites `Formula/mdmeld.rb` automatically.
+- [ ] Review the diff and push:
+  ```bash
+  git diff Formula/mdmeld.rb
+  git add Formula/mdmeld.rb
+  git commit -m "Update mdmeld to v<version>"
+  git push origin main
+  ```
+- [ ] Verify Homebrew installation (optional):
+  ```bash
+  brew untap 3leaps/tap 2>/dev/null; brew tap 3leaps/tap
+  brew install 3leaps/tap/mdmeld
+  mdmeld --help
+  ```
+
+## 7. Update Scoop Bucket
+
+- [ ] Update the manifest:
+  ```bash
+  cd ../scoop-bucket
+  ```
+  Update `bucket/mdmeld.json` with new version, URLs, and SHA256 checksums
+  (both `64bit` and `arm64` from `dist/release/SHA256SUMS`).
+- [ ] Validate and push:
+  ```bash
+  make precommit
+  git add bucket/mdmeld.json
+  git commit -m "Update mdmeld to v<version>"
+  git push origin main
+  ```
+- [ ] Verify Scoop installation (optional):
+  ```bash
+  scoop update && scoop install fulmenhq/mdmeld
+  mdmeld --help
+  ```
+
+## 8. Announce
 
 - [ ] Update any external documentation
 - [ ] Announce in relevant channels

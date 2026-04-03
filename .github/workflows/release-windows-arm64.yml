@@ -1,0 +1,81 @@
+# yamllint disable rule:document-start
+# yamllint disable rule:truthy
+# Native Windows ARM64 Binary Build
+#
+# Bun cannot cross-compile to windows-arm64 from Linux/macOS. This workflow
+# builds natively on a Windows ARM64 runner and uploads the binary to an
+# existing draft release created by the main release.yml workflow.
+#
+# Trigger: Manual (workflow_dispatch). Run after the main release job completes.
+#
+# Typical flow:
+#   1. Push v* tag -> release.yml creates draft with 5 binaries + npm tarball
+#   2. Manually trigger this workflow with the same tag
+#   3. This uploads mdmeld-windows-arm64.exe to the draft release
+#   4. Regenerate checksums locally, sign, publish
+name: "Release: Windows ARM64"
+"on":
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.1.1)"
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  build-windows-arm64:
+    name: Build Windows ARM64 (native)
+    runs-on: windows-latest-arm64-s
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Verify tag matches VERSION
+        run: |
+          VERSION=$(cat VERSION)
+          TAG="${{ inputs.tag }}"
+          TAG_VERSION="${TAG#v}"
+          if [ "$VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::VERSION ($VERSION) != tag ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+          echo "Tag matches VERSION: $VERSION"
+      - name: Verify draft release exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          DRAFT=$(gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null || echo "missing")
+          if [ "$DRAFT" = "missing" ]; then
+            echo "::error::Release $TAG not found. Run the main release workflow first."
+            exit 1
+          fi
+          echo "Release $TAG exists (draft=$DRAFT)"
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build Windows ARM64 binary (native compile)
+        run: |
+          mkdir -p dist/release
+          bun build src/cli/index.ts --compile \
+            --outfile dist/release/mdmeld-windows-arm64.exe
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          .\dist\release\mdmeld-windows-arm64.exe --help
+      - name: Upload to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          echo "Uploading mdmeld-windows-arm64.exe to ${TAG}..."
+          gh release upload "$TAG" dist/release/mdmeld-windows-arm64.exe --clobber
+          echo "Upload complete. Remember to regenerate checksums before signing."
