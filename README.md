@@ -6,21 +6,40 @@ MDMeld encodes files into a human-readable markdown archive with YAML metadata, 
 
 ## Install
 
+### Homebrew (macOS / Linux)
+
 ```bash
-npm install mdmeld
+brew install 3leaps/tap/mdmeld
 ```
+
+### Scoop (Windows)
+
+```powershell
+scoop bucket add 3leaps https://github.com/3leaps/scoop-bucket
+scoop install mdmeld
+```
+
+### npm
+
+```bash
+npm install -g mdmeld
+```
+
+### Binary download
+
+Pre-built binaries for all platforms are attached to each [GitHub release](https://github.com/3leaps/mdmeld/releases). Download, `chmod +x`, and place on your PATH.
 
 ## CLI
 
 ```bash
 # Pack a directory into an archive
-npx mdmeld pack ./my-project -o archive.mdmeld
+mdmeld pack ./my-project -o archive.mdmeld
 
 # Unpack an archive
-npx mdmeld unpack archive.mdmeld -o ./output
+mdmeld unpack archive.mdmeld -o ./output
 
 # Finalize hashes in an AI-generated archive
-npx mdmeld finalize archive.mdmeld
+mdmeld finalize archive.mdmeld
 ```
 
 ## API
@@ -90,11 +109,8 @@ export const x = 1;
 ```
 ````
 
-```
-
 Position metadata enables AI assistants to navigate directly to specific files without reading the entire archive.
 
 ## License
 
 MIT
-```
